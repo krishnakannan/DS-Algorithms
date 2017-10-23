@@ -1,33 +1,37 @@
 package Redmart;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import static Redmart.Ski.map;
+import static Redmart.Ski.mem;
 
 
 /**
  * Created by Krish on 10/22/17.
  *
- *  METHOD USED
+ *  METHOD USED - MEMOIZATION - Time Complexity - O(Total Points in Map) == O (n * n)
  *
  *      1. Identify the start points.
  *          a. A start point is a point in the map that cannot be reached from any directions
  *          (It will always be a higher altitude than its neighbours).
  *      2. For all start points
  *          a. Recursively trace the "Longest" and "Deepest" distance that can be reached.
- *      3. Print the found "Longest" and "Deepest" distance
+ *          b. Memoize the traced path that can be used for later calculation.
+ *      3. Print the found "Longest" and "Deepest" distance.
  *
  */
 
 
 public class SingaporeSki {
     List<Spot> startPoints;
-
+    int count = 0;
     public static void main(String args[]) {
         SingaporeSki singaporeSki = new SingaporeSki();
         System.out.println("BEGIN");
         Ski.readMap();
+        //Ski.initPath();
         if (map.length == 0) {
             System.out.println("PROBLEM IN INPUT");
             return;
@@ -43,12 +47,12 @@ public class SingaporeSki {
         System.out.println("IDENTIFIED START POINTS");
         List<Spot> idealPath = new ArrayList<>();
         for (Spot spot : startPoints) {
-            List<Spot> path = tracePath(spot, new ArrayList<>());            
+            List<Spot> path = tracePath(spot, new ArrayList<>());
             if (path != null && path.size() > idealPath.size()) {
                 idealPath.clear();
                 idealPath.addAll(path);
             } else if (path != null && path.size() == idealPath.size()) {
-                if ((path.get(0).getValue() - path.get(path.size() - 1).getValue()) > idealPath.get(0).getValue() - idealPath.get(idealPath.size() - 1).getValue()) {
+                if ((path.get(path.size() - 1).getValue() - path.get(0).getValue()) > idealPath.get(idealPath.size() - 1).getValue() - idealPath.get(0).getValue()) {
                     idealPath.clear();
                     idealPath.addAll(path);
                 }
@@ -56,23 +60,29 @@ public class SingaporeSki {
         }
         System.out.println("RESULT");
         for (Spot val : idealPath) {
-            System.out.print(val.getValue() + " -> ");
+            System.out.print(val.getValue() + " <- ");
         }
+        //   System.out.println("Total Steps = " + count);
         System.out.println();
         System.out.println("THE EMAIL ADDRESS IS");
         int pathLength = idealPath.size();
-        int maxDrop = idealPath.get(0).getValue() - idealPath.get(idealPath.size() - 1).getValue();
+        int maxDrop = idealPath.get(idealPath.size() - 1).getValue() - idealPath.get(0).getValue();
         System.out.println(pathLength + "" + maxDrop + "@redmart.com");
-
     }
 
 
     public List<Spot> tracePath (Spot spot, ArrayList<Spot> path) {
-        path.add(spot);
+
         List<Spot> topPath = null;
         List<Spot> leftPath = null;
         List<Spot> rightPath = null;
         List<Spot> bottomPath = null;
+
+
+        if (mem[spot.getCoordinates().i()][spot.getCoordinates().j()].hasPath()) {
+            return mem[spot.getCoordinates().i()][spot.getCoordinates().j()].getPath();
+        }
+        count++;
 
         if (spot.getCoordinates().i() > 0 && map[spot.getCoordinates().i()][spot.getCoordinates().j()] > map[spot.getCoordinates().i() - 1][spot.getCoordinates().j()]) {
             topPath = tracePath(new Spot(spot.getCoordinates().i() - 1, spot.getCoordinates().j()), new ArrayList<Spot>(path));
@@ -87,13 +97,28 @@ public class SingaporeSki {
             bottomPath = tracePath(new Spot(spot.getCoordinates().i() + 1, spot.getCoordinates().j()), new ArrayList<Spot>(path));
         }
 
-        List<Spot> longestPath = new ArrayList<>();
-        longestPath.addAll(findLongestDeepestPath (topPath, leftPath, rightPath, bottomPath));
+        if (isEndPoint(spot.getCoordinates().i(), spot.getCoordinates().j())) {
+            mem[spot.getCoordinates().i()][spot.getCoordinates().j()] = new Path(1, 0, new ArrayList<>(Arrays.asList(spot)), true);
+        }
 
+        List<Spot> tPath = new ArrayList<>(findLongestDeepestPath (topPath, leftPath, rightPath, bottomPath));
 
-        if (path.size() < longestPath.size()) {
-            path.clear();
-            path.addAll(longestPath);
+        path.addAll(tPath);
+        path.add(spot);
+
+        if (!mem[spot.getCoordinates().i()][spot.getCoordinates().j()].hasPath()) {
+            mem[spot.getCoordinates().i()][spot.getCoordinates().j()] = new Path(path.size(), path.get(path.size() - 1).getValue() - path.get(0).getValue() , new ArrayList<>(path), true);
+
+        } else if (mem[spot.getCoordinates().i()][spot.getCoordinates().j()].hasPath()) {
+            if (mem[spot.getCoordinates().i()][spot.getCoordinates().j()].getPathLength() < path.size()) {
+                mem[spot.getCoordinates().i()][spot.getCoordinates().j()] = new Path(path.size(), path.get(path.size() - 1).getValue() - path.get(0).getValue(), new ArrayList<>(path), true);
+
+            } else if (mem[spot.getCoordinates().i()][spot.getCoordinates().j()].getPathLength() == path.size()) {
+
+                if (mem[spot.getCoordinates().i()][spot.getCoordinates().j()].getPathDepth() < path.get(path.size() - 1).getValue() - path.get(0).getValue()) {
+                    mem[spot.getCoordinates().i()][spot.getCoordinates().j()] = new Path(path.size(), path.get(path.size() - 1).getValue() - path.get(0).getValue(), new ArrayList<>(path), true);
+                }
+            }
         }
         return path;
     }
@@ -150,22 +175,78 @@ public class SingaporeSki {
         }
     }
 
+    public boolean isEndPoint(int i, int j) {
+        if (i == 0 && j == 0) {
+            if (map[i][j] < map[i][j + 1] && map[i][j] < map[i + 1][j]) {
+                return true;
+            }
+        } else if (i == 0 && j != 0) {
+            if (j == map.length - 1) {
+                if (map[i][j] < map[i][j - 1] && map[i][j] < map[i + 1][j]) {
+                    return true;
+                }
+            } else {
+                if (map[i][j] < map[i][j + 1] && map[i][j] < map[i][j - 1] && map[i][j] < map[i + 1][j]) {
+                    return true;
+                }
+            }
+        } else if (i != 0 && j == 0) {
+            if (i == map.length - 1) {
+                if (map[i][j] < map[i - 1][j] && map[i][j] < map[i][j + 1]) {
+                    return true;
+                }
+            } else {
+                if (map[i][j] < map[i - 1][j] && map[i][j] < map[i + 1][j] && map[i][j] < map[i][j + 1]) {
+                    return true;
+                }
+            }
+        } else if (i != 0 && j != 0) {
+            if (i == map.length - 1 && j == map.length - 1) {
+                if (map[i][j] < map[i - 1][j] && map[i][j] < map[i][j - 1]) {
+                    return true;
+                }
+            } else if (i == map.length - 1) {
+                if (map[i][j] < map[i][j - 1] && map[i][j] < map[i][j + 1] && map[i][j] < map[i - 1][j]) {
+                    return true;
+                }
+            } else if (j == map.length - 1) {
+                if (map[i][j] < map[i - 1][j] && map[i][j] < map[i + 1][j] && map[i][j] < map[i][j - 1]) {
+                    return true;
+                }
+            } else {
+                if (map[i][j] < map[i - 1][j] && map[i][j] < map[i + 1][j] && map[i][j] < map[i][j - 1] && map[i][j] < map[i][j + 1]) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
     public List<Spot> findLongestDeepestPath (List<Spot>... spots) {
         int maxVal = Integer.MIN_VALUE;
         List<Spot> longestSpot = new ArrayList<>();
         int maxDrop = 0;
+        int endPointDrop = Integer.MAX_VALUE;
         for (List<Spot> spot : spots) {
-            if (spot != null && maxVal < spot.size()) {
+            // If the spot is endpoint. Choose the lowest point
+            if (spot != null && maxVal <= spot.size() && spot.size() == 1) {
                 maxVal = spot.size();
-                maxDrop = spot.get(0).getValue() - spot.get(spot.size() - 1).getValue();
-                longestSpot = new ArrayList<>(spot);
-            } else if (spot != null && maxVal == spot.size()) {
-                if (maxDrop < spot.get(0).getValue() - spot.get(spot.size() - 1).getValue()) {
-                    maxDrop = spot.get(0).getValue() - spot.get(spot.size() - 1).getValue();
+                if (endPointDrop > spot.get(0).getValue()) {
+                    endPointDrop = spot.get(0).getValue();
                     longestSpot = new ArrayList<>(spot);
                 }
+            } else if (spot != null && maxVal < spot.size()) {
+                    maxVal = spot.size();
+                    maxDrop = spot.get(spot.size() - 1).getValue() - spot.get(0).getValue();
+                    longestSpot = new ArrayList<>(spot);
+            } else if (spot != null && maxVal == spot.size()) {
+                    if (maxDrop < spot.get(spot.size() - 1).getValue() - spot.get(0).getValue()) {
+                        maxDrop = spot.get(spot.size() - 1).getValue() - spot.get(0).getValue();
+                        longestSpot = new ArrayList<>(spot);
+                    }
+                }
             }
-        }
         return longestSpot;
-    }
+        }
+
 }
