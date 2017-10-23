@@ -3,26 +3,47 @@ package Redmart;
 import java.util.ArrayList;
 import java.util.List;
 
+import static Redmart.Ski.map;
+
+
 /**
  * Created by Krish on 10/22/17.
+ *
+ *  METHOD USED
+ *
+ *      1. Identify the start points.
+ *          a. A start point is a point in the map that cannot be reached from any directions
+ *          (It will always be a higher altitude than its neighbours).
+ *      2. For all start points
+ *          a. Recursively trace the "Longest" and "Deepest" distance that can be reached.
+ *      3. Print the found "Longest" and "Deepest" distance
+ *
  */
+
+
 public class SingaporeSki {
     List<Spot> startPoints;
-    List<List<Integer>> paths = new ArrayList<>();
-    int[][] map  = {{4,8,7,3}, {2,6,9,2}, {2,5,2,4}, {2,4,3,4}};
-    int count = 0;
+
     public static void main(String args[]) {
         SingaporeSki singaporeSki = new SingaporeSki();
-
+        System.out.println("BEGIN");
+        Ski.readMap();
+        if (map.length == 0) {
+            System.out.println("PROBLEM IN INPUT");
+            return;
+        }
+        System.out.println("READ INPUT");
         singaporeSki.skiPath();
     }
 
     public void skiPath() {
         startPoints = new ArrayList<>();
+        System.out.println("IDENTIFYING START POINTS");
         identifyStartPoints();
+        System.out.println("IDENTIFIED START POINTS");
         List<Spot> idealPath = new ArrayList<>();
         for (Spot spot : startPoints) {
-            List<Spot> path = tracePath(spot, new ArrayList<>());
+            List<Spot> path = tracePath(spot, new ArrayList<>());            
             if (path != null && path.size() > idealPath.size()) {
                 idealPath.clear();
                 idealPath.addAll(path);
@@ -37,18 +58,17 @@ public class SingaporeSki {
         for (Spot val : idealPath) {
             System.out.print(val.getValue() + " -> ");
         }
+        System.out.println();
+        System.out.println("THE EMAIL ADDRESS IS");
+        int pathLength = idealPath.size();
+        int maxDrop = idealPath.get(0).getValue() - idealPath.get(idealPath.size() - 1).getValue();
+        System.out.println(pathLength + "" + maxDrop + "@redmart.com");
 
     }
 
 
     public List<Spot> tracePath (Spot spot, ArrayList<Spot> path) {
         path.add(spot);
-        spot.visited = true;
-
-//        for (Spot val : path) {
-//            System.out.print(val.getValue() + " -> ");
-//        }
-        System.out.println();
         List<Spot> topPath = null;
         List<Spot> leftPath = null;
         List<Spot> rightPath = null;
@@ -68,7 +88,9 @@ public class SingaporeSki {
         }
 
         List<Spot> longestPath = new ArrayList<>();
-        longestPath.addAll(findLongestPath(topPath, leftPath, rightPath, bottomPath));
+        longestPath.addAll(findLongestDeepestPath (topPath, leftPath, rightPath, bottomPath));
+
+
         if (path.size() < longestPath.size()) {
             path.clear();
             path.addAll(longestPath);
@@ -128,78 +150,22 @@ public class SingaporeSki {
         }
     }
 
-    public List<Spot> findLongestPath (List<Spot>... spots) {
+    public List<Spot> findLongestDeepestPath (List<Spot>... spots) {
         int maxVal = Integer.MIN_VALUE;
         List<Spot> longestSpot = new ArrayList<>();
+        int maxDrop = 0;
         for (List<Spot> spot : spots) {
             if (spot != null && maxVal < spot.size()) {
                 maxVal = spot.size();
+                maxDrop = spot.get(0).getValue() - spot.get(spot.size() - 1).getValue();
                 longestSpot = new ArrayList<>(spot);
+            } else if (spot != null && maxVal == spot.size()) {
+                if (maxDrop < spot.get(0).getValue() - spot.get(spot.size() - 1).getValue()) {
+                    maxDrop = spot.get(0).getValue() - spot.get(spot.size() - 1).getValue();
+                    longestSpot = new ArrayList<>(spot);
+                }
             }
         }
         return longestSpot;
     }
-
-    class Spot {
-        int value;
-        Coordinates coordinates;
-        boolean visited;
-
-        public Spot(int i, int j) {
-            this.value = map[i][j];
-            this.coordinates = new Coordinates(i, j);
-            this.visited = false;
-        }
-
-        public Spot(int value, Coordinates coordinates, boolean visited) {
-            this.value = value;
-            this.coordinates = coordinates;
-            this.visited = visited;
-        }
-
-        public int getValue() {
-            return value;
-        }
-
-        public void setValue(int value) {
-            this.value = value;
-        }
-
-        public Coordinates getCoordinates() {
-            return coordinates;
-        }
-
-        public void setCoordinates(Coordinates coordinates) {
-            this.coordinates = coordinates;
-        }
-
-        public boolean isVisited() {
-            return visited;
-        }
-
-        public void setVisited(boolean visited) {
-            this.visited = visited;
-        }
-    }
-
-    class Coordinates {
-        private int i;
-
-        private int j;
-
-        public Coordinates(int i, int j) {
-            this.i = i;
-            this.j = j;
-        }
-
-        public int i() {
-            return i;
-        }
-
-        public int j() {
-            return j;
-        }
-
-    }
-
 }
