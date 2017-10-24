@@ -27,6 +27,7 @@ import static Redmart.Ski.mem;
 public class SingaporeSki {
     List<Spot> startPoints;
     int count = 0;
+    int prevLong = -1;
     public static void main(String args[]) {
         SingaporeSki singaporeSki = new SingaporeSki();
         System.out.println("BEGIN");
@@ -45,82 +46,75 @@ public class SingaporeSki {
         System.out.println("IDENTIFYING START POINTS");
         identifyStartPoints();
         System.out.println("IDENTIFIED START POINTS");
-        List<Spot> idealPath = new ArrayList<>();
+        Spot idealPath = new Spot();
         for (Spot spot : startPoints) {
-            List<Spot> path = tracePath(spot, new ArrayList<>());
-            if (path != null && path.size() > idealPath.size()) {
-                idealPath.clear();
-                idealPath.addAll(path);
-            } else if (path != null && path.size() == idealPath.size()) {
-                if ((path.get(path.size() - 1).getValue() - path.get(0).getValue()) > idealPath.get(idealPath.size() - 1).getValue() - idealPath.get(0).getValue()) {
-                    idealPath.clear();
-                    idealPath.addAll(path);
+            Spot path = tracePath(spot);
+            if (path != null && path.getPathLength() > idealPath.getPathLength()) {
+                idealPath = path;
+            } else if (path != null && path.getPathLength() == idealPath.getPathLength()) {
+                if ((path.getPathDepth() > idealPath.getPathDepth())) {
+                    idealPath = path;
                 }
             }
         }
         System.out.println("RESULT");
-        for (Spot val : idealPath) {
-            System.out.print(val.getValue() + " <- ");
-        }
-        //   System.out.println("Total Steps = " + count);
+        printPath(idealPath);
         System.out.println();
         System.out.println("THE EMAIL ADDRESS IS");
-        int pathLength = idealPath.size();
-        int maxDrop = idealPath.get(idealPath.size() - 1).getValue() - idealPath.get(0).getValue();
+        int pathLength = idealPath.getPathLength();
+        int maxDrop = idealPath.getPathDepth();
         System.out.println(pathLength + "" + maxDrop + "@redmart.com");
+
     }
 
 
-    public List<Spot> tracePath (Spot spot, ArrayList<Spot> path) {
+    public Spot tracePath (Spot spot) {
 
-        List<Spot> topPath = null;
-        List<Spot> leftPath = null;
-        List<Spot> rightPath = null;
-        List<Spot> bottomPath = null;
+        Spot topPath = null;
+        Spot leftPath = null;
+        Spot rightPath = null;
+        Spot bottomPath = null;
 
 
         if (mem[spot.getCoordinates().i()][spot.getCoordinates().j()].hasPath()) {
-            return mem[spot.getCoordinates().i()][spot.getCoordinates().j()].getPath();
+            return mem[spot.getCoordinates().i()][spot.getCoordinates().j()];
         }
         count++;
 
         if (spot.getCoordinates().i() > 0 && map[spot.getCoordinates().i()][spot.getCoordinates().j()] > map[spot.getCoordinates().i() - 1][spot.getCoordinates().j()]) {
-            topPath = tracePath(new Spot(spot.getCoordinates().i() - 1, spot.getCoordinates().j()), new ArrayList<Spot>(path));
+            topPath = tracePath(new Spot(spot.getCoordinates().i() - 1, spot.getCoordinates().j()));
         }
         if (spot.getCoordinates().j() > 0 && map[spot.getCoordinates().i()][spot.getCoordinates().j()] > map[spot.getCoordinates().i()][spot.getCoordinates().j() - 1]) {
-            leftPath = tracePath(new Spot(spot.getCoordinates().i(), spot.getCoordinates().j() - 1), new ArrayList<Spot>(path));
+            leftPath = tracePath(new Spot(spot.getCoordinates().i(), spot.getCoordinates().j() - 1));
         }
         if (spot.getCoordinates().j() < map.length - 1 && map[spot.getCoordinates().i()][spot.getCoordinates().j()] > map[spot.getCoordinates().i()][spot.getCoordinates().j() + 1]) {
-            rightPath = tracePath(new Spot(spot.getCoordinates().i(), spot.getCoordinates().j() + 1), new ArrayList<Spot>(path));
+            rightPath = tracePath(new Spot(spot.getCoordinates().i(), spot.getCoordinates().j() + 1));
         }
         if (spot.getCoordinates().i() < map.length - 1 && map[spot.getCoordinates().i()][spot.getCoordinates().j()] > map[spot.getCoordinates().i() + 1][spot.getCoordinates().j()]) {
-            bottomPath = tracePath(new Spot(spot.getCoordinates().i() + 1, spot.getCoordinates().j()), new ArrayList<Spot>(path));
+            bottomPath = tracePath(new Spot(spot.getCoordinates().i() + 1, spot.getCoordinates().j()));
         }
 
         if (isEndPoint(spot.getCoordinates().i(), spot.getCoordinates().j())) {
-            mem[spot.getCoordinates().i()][spot.getCoordinates().j()] = new Path(1, 0, new ArrayList<>(Arrays.asList(spot)), true);
+            mem[spot.getCoordinates().i()][spot.getCoordinates().j()].setHasPath(true);
+            mem[spot.getCoordinates().i()][spot.getCoordinates().j()].setPathLength(1);
+            mem[spot.getCoordinates().i()][spot.getCoordinates().j()].setPathDepth(0);
+            return mem[spot.getCoordinates().i()][spot.getCoordinates().j()];
         }
 
-        List<Spot> tPath = new ArrayList<>(findLongestDeepestPath (topPath, leftPath, rightPath, bottomPath));
+        Spot tPath = findLongestDeepestPath (spot, topPath, leftPath, rightPath, bottomPath);
+        spot.setPathLength(tPath.getPathLength() + 1);
+        spot.setPathDepth(spot.getValue() - tPath.getValue() + tPath.getPathDepth());
 
-        path.addAll(tPath);
-        path.add(spot);
+
+
 
         if (!mem[spot.getCoordinates().i()][spot.getCoordinates().j()].hasPath()) {
-            mem[spot.getCoordinates().i()][spot.getCoordinates().j()] = new Path(path.size(), path.get(path.size() - 1).getValue() - path.get(0).getValue() , new ArrayList<>(path), true);
-
-        } else if (mem[spot.getCoordinates().i()][spot.getCoordinates().j()].hasPath()) {
-            if (mem[spot.getCoordinates().i()][spot.getCoordinates().j()].getPathLength() < path.size()) {
-                mem[spot.getCoordinates().i()][spot.getCoordinates().j()] = new Path(path.size(), path.get(path.size() - 1).getValue() - path.get(0).getValue(), new ArrayList<>(path), true);
-
-            } else if (mem[spot.getCoordinates().i()][spot.getCoordinates().j()].getPathLength() == path.size()) {
-
-                if (mem[spot.getCoordinates().i()][spot.getCoordinates().j()].getPathDepth() < path.get(path.size() - 1).getValue() - path.get(0).getValue()) {
-                    mem[spot.getCoordinates().i()][spot.getCoordinates().j()] = new Path(path.size(), path.get(path.size() - 1).getValue() - path.get(0).getValue(), new ArrayList<>(path), true);
-                }
-            }
-        }
-        return path;
+            mem[spot.getCoordinates().i()][spot.getCoordinates().j()].setHasPath(true);
+            mem[spot.getCoordinates().i()][spot.getCoordinates().j()].setPathDepth(spot.getPathDepth());
+            mem[spot.getCoordinates().i()][spot.getCoordinates().j()].setPathLength(spot.getPathLength());
+        } 
+        
+        return mem[spot.getCoordinates().i()][spot.getCoordinates().j()];
     }
 
 
@@ -128,125 +122,113 @@ public class SingaporeSki {
 
         for (int i = 0; i < map.length; i++) {
             for (int j = 0; j < map.length; j++) {
-                if (i == 0 && j == 0) {
-                    if (map[i][j] >= map[i][j + 1] && map[i][j] >= map[i + 1][j]) {
-                        startPoints.add(new Spot(map[i][j], new Coordinates(i,j), false));
-                    }
-                } else if (i == 0 && j != 0) {
-                    if (j == map.length - 1) {
-                        if (map[i][j] >= map[i][j - 1] && map[i][j] >= map[i + 1][j]) {
-                            startPoints.add(new Spot(map[i][j], new Coordinates(i,j), false));
-                        }
-                    } else {
-                        if (map[i][j] >= map[i][j + 1] && map[i][j] >= map[i][j - 1] && map[i][j] >= map[i + 1][j]) {
-                            startPoints.add(new Spot(map[i][j], new Coordinates(i,j), false));
-                        }
-                    }
-                } else if (i != 0 && j == 0) {
-                    if (i == map.length - 1) {
-                        if (map[i][j] >= map[i - 1][j] && map[i][j] >= map[i][j + 1]) {
-                            startPoints.add(new Spot(map[i][j], new Coordinates(i,j), false));
-                        }
-                    } else {
-                        if (map[i][j] >= map[i - 1][j] && map[i][j] >= map[i + 1][j] && map[i][j] >= map[i][j + 1]) {
-                            startPoints.add(new Spot(map[i][j], new Coordinates(i,j), false));
-                        }
-                    }
-                } else if (i != 0 && j != 0) {
-                    if (i == map.length - 1 && j == map.length - 1) {
-                        if (map[i][j] >= map[i - 1][j] && map[i][j] >= map[i][j - 1]) {
-                            startPoints.add(new Spot(map[i][j], new Coordinates(i,j), false));
-                        }
-                    } else if (i == map.length - 1) {
-                        if (map[i][j] >= map[i][j - 1] && map[i][j] >= map[i][j + 1] && map[i][j] >= map[i - 1][j]) {
-                            startPoints.add(new Spot(map[i][j], new Coordinates(i,j), false));
-                        }
-                    } else if (j == map.length - 1) {
-                        if (map[i][j] >= map[i - 1][j] && map[i][j] >= map[i + 1][j] && map[i][j] >= map[i][j - 1]) {
-                            startPoints.add(new Spot(map[i][j], new Coordinates(i,j), false));
-                        }
-                    } else {
-                        if (map[i][j] >= map[i - 1][j] && map[i][j] >= map[i + 1][j] && map[i][j] >= map[i][j - 1] && map[i][j] >= map[i][j + 1]) {
-                            startPoints.add(new Spot(map[i][j], new Coordinates(i,j), false));
-                        }
-                    }
+                boolean greaterThanSurrounding = true;
+                if (i > 0) {
+                    greaterThanSurrounding = greaterThanSurrounding && (map[i][j] >= map[i-1][j]);
+                }
+                if (j > 0) {
+                    greaterThanSurrounding = greaterThanSurrounding && (map[i][j] >= map[i][j-1]);
+                }
+                if (i < map.length-1) {
+                    greaterThanSurrounding = greaterThanSurrounding && (map[i][j] >= map[i+1][j]);
+                }
+                if (j < map.length-1) {
+                    greaterThanSurrounding = greaterThanSurrounding && (map[i][j] >= map[i][j+1]);
+                }
+                if (greaterThanSurrounding) {
+                    startPoints.add(new Spot(map[i][j], new Coordinates(i,j), false));
                 }
             }
         }
     }
 
     public boolean isEndPoint(int i, int j) {
-        if (i == 0 && j == 0) {
-            if (map[i][j] < map[i][j + 1] && map[i][j] < map[i + 1][j]) {
-                return true;
-            }
-        } else if (i == 0 && j != 0) {
-            if (j == map.length - 1) {
-                if (map[i][j] < map[i][j - 1] && map[i][j] < map[i + 1][j]) {
-                    return true;
-                }
-            } else {
-                if (map[i][j] < map[i][j + 1] && map[i][j] < map[i][j - 1] && map[i][j] < map[i + 1][j]) {
-                    return true;
-                }
-            }
-        } else if (i != 0 && j == 0) {
-            if (i == map.length - 1) {
-                if (map[i][j] < map[i - 1][j] && map[i][j] < map[i][j + 1]) {
-                    return true;
-                }
-            } else {
-                if (map[i][j] < map[i - 1][j] && map[i][j] < map[i + 1][j] && map[i][j] < map[i][j + 1]) {
-                    return true;
-                }
-            }
-        } else if (i != 0 && j != 0) {
-            if (i == map.length - 1 && j == map.length - 1) {
-                if (map[i][j] < map[i - 1][j] && map[i][j] < map[i][j - 1]) {
-                    return true;
-                }
-            } else if (i == map.length - 1) {
-                if (map[i][j] < map[i][j - 1] && map[i][j] < map[i][j + 1] && map[i][j] < map[i - 1][j]) {
-                    return true;
-                }
-            } else if (j == map.length - 1) {
-                if (map[i][j] < map[i - 1][j] && map[i][j] < map[i + 1][j] && map[i][j] < map[i][j - 1]) {
-                    return true;
-                }
-            } else {
-                if (map[i][j] < map[i - 1][j] && map[i][j] < map[i + 1][j] && map[i][j] < map[i][j - 1] && map[i][j] < map[i][j + 1]) {
-                    return true;
-                }
-            }
+        boolean lessThanSurrounding = true;
+        if (i > 0) {
+            lessThanSurrounding = lessThanSurrounding && (map[i][j] <= map[i-1][j]);
         }
-        return false;
+        if (j > 0) {
+            lessThanSurrounding = lessThanSurrounding && (map[i][j] <= map[i][j-1]);
+        }
+        if (i < map.length-1) {
+            lessThanSurrounding = lessThanSurrounding && (map[i][j] <= map[i+1][j]);
+        }
+        if (j < map.length-1) {
+            lessThanSurrounding = lessThanSurrounding && (map[i][j] <= map[i][j+1]);
+        }
+        return lessThanSurrounding;
     }
 
-    public List<Spot> findLongestDeepestPath (List<Spot>... spots) {
-        int maxVal = Integer.MIN_VALUE;
-        List<Spot> longestSpot = new ArrayList<>();
-        int maxDrop = 0;
+    public Spot findLongestDeepestPath (Spot... spots) {
+        int longestPath = Integer.MIN_VALUE;
+        Spot longestSpot = null;
+        int deepestDrop = 0;
         int endPointDrop = Integer.MAX_VALUE;
-        for (List<Spot> spot : spots) {
+        for (Spot spot : spots) {
             // If the spot is endpoint. Choose the lowest point
-            if (spot != null && maxVal <= spot.size() && spot.size() == 1) {
-                maxVal = spot.size();
-                if (endPointDrop > spot.get(0).getValue()) {
-                    endPointDrop = spot.get(0).getValue();
-                    longestSpot = new ArrayList<>(spot);
+            if (spot != null && longestPath <= spot.getPathLength() && spot.getPathLength() == 1) {
+                longestPath = spot.getPathLength();
+                if (endPointDrop > spot.getValue()) {
+                    endPointDrop = spot.getValue();
+                    longestSpot = spot;
                 }
-            } else if (spot != null && maxVal < spot.size()) {
-                    maxVal = spot.size();
-                    maxDrop = spot.get(spot.size() - 1).getValue() - spot.get(0).getValue();
-                    longestSpot = new ArrayList<>(spot);
-            } else if (spot != null && maxVal == spot.size()) {
-                    if (maxDrop < spot.get(spot.size() - 1).getValue() - spot.get(0).getValue()) {
-                        maxDrop = spot.get(spot.size() - 1).getValue() - spot.get(0).getValue();
-                        longestSpot = new ArrayList<>(spot);
+            }
+            
+            if (spot != null && longestPath < spot.getPathLength()) {
+                    longestPath = spot.getPathLength();
+                    deepestDrop = spot.getPathDepth();
+                    longestSpot = spot;
+            } else if (spot != null && longestPath == spot.getPathLength()) {
+                    if (deepestDrop < spot.getPathDepth()) {
+                        deepestDrop = spot.getPathDepth();
+                        longestSpot = spot;
                     }
                 }
             }
         return longestSpot;
+    }
+
+    public Spot getLongestDeepestPath(Spot... spots) {
+        int longestPath = Integer.MIN_VALUE;
+        Spot longestSpot = null;
+        int spotVal = Integer.MAX_VALUE;
+        int deepestDrop = 0;
+        for (Spot spot : spots) {
+            if (spot.getValue() >= prevLong) {
+                continue;
+            } else if (spot != null && longestPath < spot.getPathLength()) {
+                longestPath = spot.getPathLength();
+                deepestDrop = spot.getPathDepth();
+                longestSpot = spot;
+                spotVal = spot.getValue();
+            } else if (spot != null && longestPath == spot.getPathLength()) {
+                if (deepestDrop < spot.getPathDepth()) {
+                    deepestDrop = spot.getPathDepth();
+                    longestSpot = spot;
+                    spotVal = spot.getValue();
+                } /* If the spot is endpoint. Choose the lowest point */
+                else if (deepestDrop == spot.getPathDepth()) {
+                    if (spotVal > spot.getValue()) {
+                        deepestDrop = spot.getPathDepth();
+                        longestSpot = spot;
+                        spotVal = spot.getValue();
+                    }
+                }
+
+            }
         }
+        return longestSpot;
+    }
+
+    public void printPath(Spot spot) {
+        int length = spot.getPathLength();
+        while(--length >= 0) {
+            System.out.print(spot.getValue() + " -> ");
+            prevLong = spot.getValue();
+            spot = getLongestDeepestPath(spot.getCoordinates().j() > 0 ? mem[spot.getCoordinates().i()][spot.getCoordinates().j() - 1] : null, spot.getCoordinates().i() > 0 ? mem[spot.getCoordinates().i() - 1][spot.getCoordinates().j()] : null, spot.getCoordinates().i() < mem.length ? mem[spot.getCoordinates().i() + 1][spot.getCoordinates().j()] : null, spot.getCoordinates().j() < mem.length ? mem[spot.getCoordinates().i()][spot.getCoordinates().j() + 1] : null);
+
+        }
+    }
+
 
 }
