@@ -9,8 +9,12 @@ class Node
     {
         int data;
         Node next;
-        Node(int d) {data = d; next = null; }
+        Node(int d) {data = d; next = null; }        
     }*/
+
+    //http://practice.geeksforgeeks.org/problems/detect-loop-in-linked-list/1
+
+    
 class GfG
 {
 	int detectLoop(Node head) {

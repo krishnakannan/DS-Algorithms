@@ -14,6 +14,9 @@ class Node {
         next = null;
     }
 }*/
+
+//http://practice.geeksforgeeks.org/problems/remove-loop-in-linked-list/1
+
 class GfG{
 	 int removeTheLoop(Node node) {
 	 	Node slowPtr = node;	 	

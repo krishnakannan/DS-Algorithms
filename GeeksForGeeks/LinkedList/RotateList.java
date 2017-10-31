@@ -10,6 +10,8 @@ class Node{
 }
 */
 
+//http://practice.geeksforgeeks.org/problems/rotate-a-linked-list/1
+
 	public void rotate(Node head,int k) {
         
         Node tail = head;

@@ -2,6 +2,8 @@ import java.util.*;
 import java.lang.*;
 import java.io.*;
 
+//http://practice.geeksforgeeks.org/problems/kadanes-algorithm/0
+
 class Kadanes {
 	public static void main (String[] args) {
 		Scanner in = new Scanner(System.in);

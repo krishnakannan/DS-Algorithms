@@ -12,6 +12,8 @@ class Node
     Node(int d) {data = d; next = null; }
 }
 */
+
+//http://practice.geeksforgeeks.org/problems/nth-node-from-end-of-linked-list/1
 class GfG
 {
     int getNthFromLast(Node head, int n) {

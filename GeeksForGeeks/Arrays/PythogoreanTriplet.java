@@ -2,6 +2,8 @@ import java.util.*;
 import java.lang.*;
 import java.io.*;
 
+//http://practice.geeksforgeeks.org/problems/pythagorean-triplet/0
+
 class PythogoreanTriplet {
 	public static void main (String[] args) {
 		Scanner in = new Scanner(System.in);

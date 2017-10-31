@@ -4,6 +4,10 @@
 //     Node(int d)  { data = d;  next = null; }
 // }
 // Function to find middle element a linked list
+
+//http://practice.geeksforgeeks.org/problems/finding-middle-element-in-a-linked-list/1
+
+
    int getMiddle(Node head)
    {
    		Node slowPtr = head;

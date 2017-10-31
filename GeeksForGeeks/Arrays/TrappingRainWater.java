@@ -2,6 +2,8 @@ import java.util.*;
 import java.lang.*;
 import java.io.*;
 
+//http://practice.geeksforgeeks.org/problems/trapping-rain-water/0
+
 class TrappingRainWater {
 	public static void main (String[] args) {
 		TrappingRainWater tr = new TrappingRainWater();

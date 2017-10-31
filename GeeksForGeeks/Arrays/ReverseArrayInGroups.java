@@ -2,6 +2,8 @@ import java.util.*;
 import java.lang.*;
 import java.io.*;
 
+//http://practice.geeksforgeeks.org/problems/reverse-array-in-groups/0
+
 class ReverseArrayInGroups {
 	public static void main (String[] args) {
 		ReverseArrayInGroups rag = new ReverseArrayInGroups();

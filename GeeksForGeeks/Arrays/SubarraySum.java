@@ -2,6 +2,8 @@ import java.util.*;
 import java.lang.*;
 import java.io.*;
 
+//http://practice.geeksforgeeks.org/problems/subarray-with-given-sum/0
+
 class SubarraySum {
 	public static void main (String[] args) {
 		Scanner in = new Scanner(System.in);

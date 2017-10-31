@@ -2,6 +2,8 @@ import java.util.*;
 import java.lang.*;
 import java.io.*;
 
+//http://practice.geeksforgeeks.org/problems/minimum-platforms/0
+
 class MinimumPlatforms {
 	public static void main (String[] args) {
 		Scanner in = new Scanner(System.in);

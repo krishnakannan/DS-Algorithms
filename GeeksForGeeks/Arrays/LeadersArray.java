@@ -2,6 +2,8 @@ import java.util.*;
 import java.lang.*;
 import java.io.*;
 
+//http://practice.geeksforgeeks.org/problems/leaders-in-an-array/0
+
 class LeadersArray {
 	public static void main (String[] args) {
 		Scanner in = new Scanner(System.in);

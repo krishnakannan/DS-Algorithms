@@ -8,6 +8,9 @@
 } */
   // This function should reverse linked list and return
    // head of the modified linked list.
+
+//http://practice.geeksforgeeks.org/problems/reverse-a-linked-list/1
+
    Node reverse(Node head)
    {
 		Node p1 = null;

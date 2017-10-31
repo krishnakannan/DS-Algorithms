@@ -2,6 +2,8 @@ import java.util.*;
 import java.lang.*;
 import java.io.*;
 
+//http://practice.geeksforgeeks.org/problems/check-if-string-is-rotated-by-two-places/0
+
 class IsStrRotatedII {
 	public static void main (String[] args) {
 		IsStrRotatedII is = new IsStrRotatedII();
