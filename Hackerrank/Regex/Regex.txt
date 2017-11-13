@@ -1,0 +1,106 @@
+Hackerrank Regex
+
+1. Matching Specific String
+	
+        tester.checker("hackerrank"); 
+
+2. Matching Anything but a Newline
+
+	tester.check("...\\....\\....\\....");
+
+3. Matching Digits & Non-Digit Characters
+
+	tester.checker("\\d\\d\\D\\d\\d\\D\\d\\d\\d\\d");
+
+4. Matching Whitespace & Non-Whitespace Character
+	
+	tester.checker("\\S\\S\\s\\S\\S\\s\\S\\S"); 
+
+5. Matching Word & Non-Word Character
+
+	tester.checker("\\w\\w\\w\\W\\w*\\W\\w\\w\\w"); 
+
+6. Matching Start & End
+
+	tester.checker("^\\d[a-zA-Z0-9]{4}\\.$");
+
+7. Matching Specific Characters
+
+	tester.checker("^[1|2|3][1|2|0][x|s|0][3|0|a|A][x|s|u][\\.|\\,]$");  
+
+8. Excluding Specific Characters
+
+	tester.checker("^[^\\d][^a|^e|^i|^o|^u][^b|^c|^C|^F][^\\t|^\\s][^A|^E|^I|^O|^U][^\\.|^\\,]$");
+
+	tester.checker("^[^\\d][^aeiou][^bcCF][^\\s][^AEIOU][^\\.\\,]$");
+
+9. Matching Character Ranges
+
+	tester.checker("^[a-z][1-9][^a-z][^A-Z][A-Z][\\d\\D]{0,}$");
+
+10. Matching {x} Repetitions
+
+        tester.checker("^[a-zA-Z02468]{40}[13579|\\s]{5}$");
+
+11. Matching {x, y} Repetitions
+
+        tester.checker("^[\\d]{1,2}[a-zA-Z]{3,}[\\.]{0,3}$");
+
+12. Matching Zero Or More Repetitions
+
+	tester.checker("^[\\d]{2,}[a-z]*[A-Z]*$");
+
+13. Matching One Or More Repetitions
+
+	tester.checker("^[\\d]+[A-Z]+[a-z]+$")
+
+14. Matching Word Boundaries
+
+	tester.checker("\\b[aeiouAEIOU][a-zA-Z]*\\b");
+
+15. Matching Ending Items
+
+	tester.checker("^[a-zA-Z]*s$");
+
+16. Capturing & Non-Capturing Groups
+
+	tester.checker("(ok){3,}"); 
+
+17. Alternative Matching
+
+	tester.checker("^(Mr\\.|Mrs\\.|Ms\\.|Dr\\.|Er\\.)[a-zA-Z]+$");
+
+18. Matching Same Text Again & Again
+
+	tester.checker("^([a-z])([\\w])([\\s])([\\W])([\\d])([\\D])([A-Z])([a-zA-Z])([aeiouAEIOU])([^\\s])\\1\\2\\3\\4\\5\\6\\7\\8\\9\\10$");
+
+19. Backreferences To Failed Groups
+
+	 tester.checker("^\\d{2}(-?)\\d{2}\\1\\d{2}\\1\\d{2}$");
+
+20. Branch Reset Groups
+
+	$Regex_Pattern = '/^\d{2}(?|([.])|([:])|([-])|([-]{3}))\d{2}\1\d{2}\1\d{2}$/';
+
+21. Forward References
+
+	tester.checker("^(\\2tic|(tac))+$");
+
+22. Positive Lookahead
+
+	tester.checker("o(?=[o]{2})");
+
+23. Negative Lookahead
+
+	tester.checker("(.)(?!\\1)");
+
+24. Positive Lookbehind
+
+	tester.checker("(?<=[13579])[\d]");
+
+25. Negative Lookbehind
+
+	tester.checker("(?<![aeiouAEIOU]).");
+
+
+
