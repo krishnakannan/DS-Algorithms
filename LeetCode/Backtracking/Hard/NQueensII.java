@@ -2,7 +2,7 @@ import java.util.*;
 import java.lang.*;
 import java.io.*;
 
-//https://leetcode.com/problems/n-queens/description/
+////https://leetcode.com/problems/n-queens-ii/description/
 
 public class NQueensII {
 
