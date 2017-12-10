@@ -30,7 +30,7 @@ class SubsetPartitioning {
 		sum /= 2;
 		boolean[][] dp = new boolean[set.length][sum + 1];
 		for (int j = 0; j < set.length; j++) {
-			dp[0][j] = true;
+			dp[j][0] = true;
 		}
 
 		for (int i = 0; i < dp.length; i++) {

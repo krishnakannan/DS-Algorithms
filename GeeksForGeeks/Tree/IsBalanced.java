@@ -33,7 +33,7 @@ class GfG
 
     int getMaxDepth(Node root) {
     	if (!isBalanced) {
-    		return;
+    		return 0;
     	}
     	if (root == null) {
     		return 0;
