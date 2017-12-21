@@ -48,7 +48,6 @@ class AllOne {
 	/*  Designing Structure like
 
 		VL	<->	VL	<->	VL	<->	VL
-		^		^		^		^
 		|		|		|		|
 		v		v		v		v
 		DL		DL		DL		DL
