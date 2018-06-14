@@ -50,6 +50,14 @@ class GeekCollectBalls {
 				j++;
 			}
 		}
+		//added logic when last element in  arrays are equal
+		if(arr1[i-1] == arr2[j-1]){
+		    if (path1 > path2) {
+					path2 = path1;
+				} else {
+					path1 = path2;
+				}
+		}
 
 		while (i < arr1.length) {
 			path1 += arr1[i];
